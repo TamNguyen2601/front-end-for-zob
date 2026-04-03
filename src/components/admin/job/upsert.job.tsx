@@ -105,6 +105,16 @@ const ViewUpsertJob = (props: any) => {
     }
 
     const onFinish = async (values: any) => {
+        const startDateValue = dayjs(values.startDate);
+        const endDateValue = dayjs(values.endDate);
+        if (!endDateValue.isAfter(startDateValue, 'day')) {
+            notification.error({
+                message: 'Có lỗi xảy ra',
+                description: 'Ngày kết thúc phải lớn hơn ngày bắt đầu'
+            });
+            return;
+        }
+
         if (dataUpdate?.id) {
             //update
             const cp = values?.company?.value?.split('@#$');
@@ -334,13 +344,30 @@ const ViewUpsertJob = (props: any) => {
                                 <ProFormDatePicker
                                     label="Ngày kết thúc"
                                     name="endDate"
+                                    dependencies={["startDate"]}
                                     normalize={(value) => value && dayjs(value, 'DD/MM/YYYY')}
                                     fieldProps={{
                                         format: 'DD/MM/YYYY',
 
                                     }}
                                     // width="auto"
-                                    rules={[{ required: true, message: 'Vui lòng chọn ngày cấp' }]}
+                                    rules={[
+                                        { required: true, message: 'Vui lòng chọn ngày cấp' },
+                                        ({ getFieldValue }) => ({
+                                            validator(_, value) {
+                                                const startDate = getFieldValue('startDate');
+                                                if (!value || !startDate) {
+                                                    return Promise.resolve();
+                                                }
+
+                                                if (dayjs(value).isAfter(dayjs(startDate), 'day')) {
+                                                    return Promise.resolve();
+                                                }
+
+                                                return Promise.reject(new Error('Ngày kết thúc phải lớn hơn ngày bắt đầu'));
+                                            },
+                                        }),
+                                    ]}
                                     placeholder="dd/mm/yyyy"
                                 />
                             </Col>

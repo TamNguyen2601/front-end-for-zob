@@ -67,7 +67,8 @@ const JobCard = (props: IProps) => {
 
         const res = await callFetchJob(query);
         if (res && res.data) {
-            setDisplayJob(res.data.result);
+            const jobs = showPagination ? res.data.result : res.data.result.filter(item => item.active);
+            setDisplayJob(jobs);
             setTotal(res.data.meta.total)
         }
         setIsLoading(false);

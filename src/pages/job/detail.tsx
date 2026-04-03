@@ -5,7 +5,7 @@ import { callFetchJobById } from "@/config/api";
 import styles from 'styles/client.module.scss';
 import parse from 'html-react-parser';
 import { Col, Divider, Row, Skeleton, Tag } from "antd";
-import { DollarOutlined, EnvironmentOutlined, HistoryOutlined } from "@ant-design/icons";
+import { CalendarOutlined, DollarOutlined, EnvironmentOutlined, HistoryOutlined } from "@ant-design/icons";
 import { getLocationName } from "@/config/utils";
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -71,6 +71,9 @@ const ClientJobDetailPage = (props: any) => {
                                 </div>
                                 <div className={styles["location"]}>
                                     <EnvironmentOutlined style={{ color: '#58aaab' }} />&nbsp;{getLocationName(jobDetail.location)}
+                                </div>
+                                <div>
+                                    <CalendarOutlined />&nbsp;Thời gian tuyển dụng: {jobDetail.startDate ? dayjs(jobDetail.startDate).format('DD/MM/YYYY') : "-"} - {jobDetail.endDate ? dayjs(jobDetail.endDate).format('DD/MM/YYYY') : "-"}
                                 </div>
                                 <div>
                                     <HistoryOutlined /> {jobDetail.updatedAt ? dayjs(jobDetail.updatedAt).locale("en").fromNow() : dayjs(jobDetail.createdAt).locale("en").fromNow()}
