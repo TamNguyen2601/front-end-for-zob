@@ -25,6 +25,10 @@ export const callLogout = () => {
     return axios.post<IBackendRes<string>>('/api/v1/auth/logout')
 }
 
+export const callChangePassword = (oldPassword: string, newPassword: string, newPasswordConfirm: string) => {
+    return axios.post<IBackendRes<IUser>>('/api/v1/auth/change-password', { oldPassword, newPassword, newPasswordConfirm })
+}
+
 /**
  * Upload single file
  */
