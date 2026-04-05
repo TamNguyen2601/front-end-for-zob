@@ -3,7 +3,7 @@ import { isMobile } from "react-device-detect";
 import type { TabsProps } from 'antd';
 import { IResume, IUser } from "@/types/backend";
 import { useState, useEffect } from 'react';
-import { callFetchResumeByUser, callUpdateUser, callChangePassword, callFetchAccount } from "@/config/api";
+import { callFetchResumeByUser, callUpdateCurrentUser, callChangePassword, callFetchAccount } from "@/config/api";
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -146,14 +146,13 @@ const UserUpdateInfo = (props: { open: boolean }) => {
         setIsLoading(true);
         try {
             const userData = {
-                id: initialValues?.id || user.id,
                 name: values.name,
                 age: values.age,
                 gender: values.gender,
                 address: values.address || ""
             };
 
-            const res = await callUpdateUser(userData as IUser);
+            const res = await callUpdateCurrentUser(userData as Partial<IUser>);
             if (res.data) {
                 message.success("Cập nhật thông tin cá nhân thành công");
                 await fetchCurrentAccount();

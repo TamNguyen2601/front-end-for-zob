@@ -104,9 +104,35 @@ const ViewUpsertJob = (props: any) => {
         } else return [];
     }
 
+    const normalizeToDayjs = (input: any) => {
+        if (!input) return dayjs('');
+        if (dayjs.isDayjs(input)) return input;
+        if (input instanceof Date) return dayjs(input);
+
+        if (typeof input === 'string') {
+            const ddmmyyyy = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+            if (ddmmyyyy.test(input)) {
+                const [d, m, y] = input.split('/').map(Number);
+                return dayjs(new Date(y, m - 1, d));
+            }
+            return dayjs(input);
+        }
+
+        return dayjs(input);
+    }
+
     const onFinish = async (values: any) => {
-        const startDateValue = dayjs(values.startDate);
-        const endDateValue = dayjs(values.endDate);
+        const startDateValue = normalizeToDayjs(values.startDate);
+        const endDateValue = normalizeToDayjs(values.endDate);
+
+        if (!startDateValue.isValid() || !endDateValue.isValid()) {
+            notification.error({
+                message: 'Có lỗi xảy ra',
+                description: 'Vui lòng nhập ngày hợp lệ'
+            });
+            return;
+        }
+
         if (!endDateValue.isAfter(startDateValue, 'day')) {
             notification.error({
                 message: 'Có lỗi xảy ra',
@@ -139,8 +165,8 @@ const ViewUpsertJob = (props: any) => {
                 quantity: values.quantity,
                 level: values.level,
                 description: value,
-                startDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.startDate) ? dayjs(values.startDate, 'DD/MM/YYYY').toDate() : values.startDate,
-                endDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.endDate) ? dayjs(values.endDate, 'DD/MM/YYYY').toDate() : values.endDate,
+                startDate: startDateValue.toDate(),
+                endDate: endDateValue.toDate(),
                 active: values.active,
 
             }
@@ -172,8 +198,8 @@ const ViewUpsertJob = (props: any) => {
                 quantity: values.quantity,
                 level: values.level,
                 description: value,
-                startDate: dayjs(values.startDate, 'DD/MM/YYYY').toDate(),
-                endDate: dayjs(values.endDate, 'DD/MM/YYYY').toDate(),
+                startDate: startDateValue.toDate(),
+                endDate: endDateValue.toDate(),
                 active: values.active
             }
 
