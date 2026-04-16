@@ -91,6 +91,22 @@ const ResumePage = () => {
             dataIndex: "companyName",
             hideInSearch: true,
         },
+        {
+            title: 'CV',
+            dataIndex: 'url',
+            hideInSearch: true,
+            render: (_value, record) => {
+                return (
+                    <a
+                        href={`${import.meta.env.VITE_BACKEND_URL}/storage/resume/${record?.url}`}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        Chi tiết CV
+                    </a>
+                )
+            }
+        },
 
         {
             title: 'CreatedAt',
