@@ -3,12 +3,14 @@ import { isMobile } from "react-device-detect";
 import type { TabsProps } from 'antd';
 import { IResume, IUser } from "@/types/backend";
 import { useState, useEffect } from 'react';
-import { callFetchResumeByUser, callUpdateCurrentUser, callChangePassword, callFetchAccount } from "@/config/api";
+import { callDeleteResume, callFetchResumeByUser, callUpdateCurrentUser, callChangePassword, callFetchAccount } from "@/config/api";
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setUserLoginInfo } from "@/redux/slice/accountSlide";
 import { getResumeStatusTagColor } from "@/config/utils";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Popconfirm, Space } from "antd";
 
 interface IProps {
     open: boolean;
@@ -18,18 +20,45 @@ interface IProps {
 const UserResume = (props: any) => {
     const [listCV, setListCV] = useState<IResume[]>([]);
     const [isFetching, setIsFetching] = useState<boolean>(false);
+    const [deletingId, setDeletingId] = useState<string | undefined>(undefined);
+
+    const fetchUserResume = async () => {
+        setIsFetching(true);
+        const res = await callFetchResumeByUser();
+        if (res && res.data) {
+            setListCV(res.data.result as IResume[])
+        }
+        setIsFetching(false);
+    }
 
     useEffect(() => {
-        const init = async () => {
-            setIsFetching(true);
-            const res = await callFetchResumeByUser();
-            if (res && res.data) {
-                setListCV(res.data.result as IResume[])
-            }
-            setIsFetching(false);
-        }
-        init();
+        fetchUserResume();
     }, [])
+
+    const handleDeleteResume = async (id: string | undefined) => {
+        if (!id) return;
+
+        setDeletingId(id);
+        const res = await callDeleteResume(id);
+
+        if (res && +res.statusCode === 200) {
+            message.success('Xóa CV thành công');
+            setListCV(prev => prev.filter(item => item.id !== id));
+        } else if (res && +res.statusCode === 404) {
+            notification.warning({
+                message: 'Không tìm thấy CV',
+                description: res.message
+            });
+            await fetchUserResume();
+        } else if (res && +res.statusCode !== 403) {
+            notification.error({
+                message: 'Có lỗi xảy ra',
+                description: res.message
+            });
+        }
+
+        setDeletingId(undefined);
+    }
 
     const columns: ColumnsType<IResume> = [
         {
@@ -75,14 +104,35 @@ const UserResume = (props: any) => {
             },
         },
         {
-            title: '',
+            title: 'Thao tác',
             dataIndex: "",
             render(value, record, index) {
                 return (
-                    <a
-                        href={`${import.meta.env.VITE_BACKEND_URL}/storage/resume/${record?.url}`}
-                        target="_blank"
-                    >Chi tiết</a>
+                    <Space>
+                        <a
+                            href={`${import.meta.env.VITE_BACKEND_URL}/storage/resume/${record?.url}`}
+                            target="_blank"
+                            rel="noreferrer"
+                        >Chi tiết</a>
+                        <Popconfirm
+                            placement="leftTop"
+                            title={"Xác nhận xóa CV"}
+                            description={"Bạn có chắc chắn muốn xóa CV này ?"}
+                            onConfirm={() => handleDeleteResume(record.id)}
+                            okText="Xác nhận"
+                            cancelText="Hủy"
+                        >
+                            <Button
+                                type="link"
+                                danger
+                                icon={<DeleteOutlined />}
+                                loading={deletingId === record.id}
+                                style={{ padding: 0 }}
+                            >
+                                Xóa
+                            </Button>
+                        </Popconfirm>
+                    </Space>
                 )
             },
         },
