@@ -2,7 +2,7 @@ import { callFetchJob } from '@/config/api';
 import { convertSlug, getLocationName } from '@/config/utils';
 import { IJob } from '@/types/backend';
 import { EnvironmentOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Card, Col, Empty, Pagination, Row, Spin } from 'antd';
+import { Card, Col, Empty, Pagination, Row, Spin, Tag } from 'antd';
 import { useState, useEffect } from 'react';
 import { isMobile } from 'react-device-detect';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -91,6 +91,23 @@ const JobCard = (props: IProps) => {
         navigate(`/job/${slug}?id=${item.id}`)
     }
 
+    const getLevelTagColor = (level?: string) => {
+        switch ((level ?? '').toUpperCase()) {
+            case 'INTERN':
+                return 'blue';
+            case 'FRESHER':
+                return 'cyan';
+            case 'JUNIOR':
+                return 'green';
+            case 'MIDDLE':
+                return 'gold';
+            case 'SENIOR':
+                return 'red';
+            default:
+                return 'default';
+        }
+    }
+
     return (
         <div className={`${styles["card-job-section"]}`}>
             <div className={`${styles["job-content"]}`}>
@@ -120,6 +137,11 @@ const JobCard = (props: IProps) => {
                                             </div>
                                             <div className={styles["card-job-right"]}>
                                                 <div className={styles["job-title"]}>{item.name}</div>
+                                                <div style={{ marginBottom: 8 }}>
+                                                    <Tag color={getLevelTagColor(item.level)} style={{ marginInlineEnd: 0 }}>
+                                                        {item.level}
+                                                    </Tag>
+                                                </div>
                                                 <div className={styles["job-location"]}><EnvironmentOutlined style={{ color: '#58aaab' }} />&nbsp;{getLocationName(item.location)}</div>
                                                 <div><ThunderboltOutlined style={{ color: 'orange' }} />&nbsp;{(item.salary + "")?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} đ</div>
                                                 <div className={styles["job-updatedAt"]}>{item.updatedAt ? dayjs(item.updatedAt).locale('en').fromNow() : dayjs(item.createdAt).locale('en').fromNow()}</div>

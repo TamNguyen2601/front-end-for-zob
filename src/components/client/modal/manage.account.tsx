@@ -1,4 +1,4 @@
-import { Button, Col, Form, Modal, Row, Select, Table, Tabs, message, notification } from "antd";
+import { Button, Col, Form, Modal, Row, Select, Table, Tabs, Tag, message, notification } from "antd";
 import { isMobile } from "react-device-detect";
 import type { TabsProps } from 'antd';
 import { IResume, IUser } from "@/types/backend";
@@ -8,6 +8,7 @@ import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setUserLoginInfo } from "@/redux/slice/accountSlide";
+import { getResumeStatusTagColor } from "@/config/utils";
 
 interface IProps {
     open: boolean;
@@ -56,6 +57,13 @@ const UserResume = (props: any) => {
         {
             title: 'Trạng thái',
             dataIndex: "status",
+            render: (value, record) => {
+                return (
+                    <Tag color={getResumeStatusTagColor(record.status)} style={{ marginInlineEnd: 0 }}>
+                        {record.status}
+                    </Tag>
+                )
+            }
         },
         {
             title: 'Ngày rải CV',

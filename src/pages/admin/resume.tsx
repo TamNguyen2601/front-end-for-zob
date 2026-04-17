@@ -13,6 +13,8 @@ import { ALL_PERMISSIONS } from "@/config/permissions";
 import Access from "@/components/share/access";
 import { sfIn } from "spring-filter-query-builder";
 import { EditOutlined } from "@ant-design/icons";
+import { Tag } from "antd";
+import { getResumeStatusTagColor } from "@/config/utils";
 
 const ResumePage = () => {
     const tableRef = useRef<ActionType>();
@@ -65,6 +67,13 @@ const ResumePage = () => {
             title: 'Trạng Thái',
             dataIndex: 'status',
             sorter: true,
+            render: (_value, record) => {
+                return (
+                    <Tag color={getResumeStatusTagColor(record.status)} style={{ marginInlineEnd: 0 }}>
+                        {record.status}
+                    </Tag>
+                )
+            },
             renderFormItem: (item, props, form) => (
                 <ProFormSelect
                     showSearch
@@ -76,7 +85,7 @@ const ResumePage = () => {
                         APPROVED: 'APPROVED',
                         REJECTED: 'REJECTED',
                     }}
-                    placeholder="Chọn level"
+                    placeholder="Chọn trạng thái"
                 />
             ),
         },

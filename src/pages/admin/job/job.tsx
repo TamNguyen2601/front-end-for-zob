@@ -20,8 +20,10 @@ const JobPage = () => {
     const isFetching = useAppSelector(state => state.job.isFetching);
     const meta = useAppSelector(state => state.job.meta);
     const jobs = useAppSelector(state => state.job.result);
+    const userRoleName = useAppSelector(state => state.account.user.role.name);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const isHrRole = (userRoleName ?? '').toUpperCase().includes('HR');
 
     const handleDeleteJob = async (id: string | undefined) => {
         if (id) {
@@ -135,10 +137,7 @@ const JobPage = () => {
             width: 50,
             render: (_value, entity, _index, _action) => (
                 <Space>
-                    < Access
-                        permission={ALL_PERMISSIONS.JOBS.UPDATE}
-                        hideChildren
-                    >
+                    {isHrRole ? (
                         <EditOutlined
                             style={{
                                 fontSize: 20,
@@ -149,11 +148,24 @@ const JobPage = () => {
                                 navigate(`/admin/job/upsert?id=${entity.id}`)
                             }}
                         />
-                    </Access >
-                    <Access
-                        permission={ALL_PERMISSIONS.JOBS.DELETE}
-                        hideChildren
-                    >
+                    ) : (
+                        <Access
+                            permission={ALL_PERMISSIONS.JOBS.UPDATE}
+                            hideChildren
+                        >
+                            <EditOutlined
+                                style={{
+                                    fontSize: 20,
+                                    color: '#ffa500',
+                                }}
+                                type=""
+                                onClick={() => {
+                                    navigate(`/admin/job/upsert?id=${entity.id}`)
+                                }}
+                            />
+                        </Access>
+                    )}
+                    {isHrRole ? (
                         <Popconfirm
                             placement="leftTop"
                             title={"Xác nhận xóa job"}
@@ -171,7 +183,30 @@ const JobPage = () => {
                                 />
                             </span>
                         </Popconfirm>
-                    </Access>
+                    ) : (
+                        <Access
+                            permission={ALL_PERMISSIONS.JOBS.DELETE}
+                            hideChildren
+                        >
+                            <Popconfirm
+                                placement="leftTop"
+                                title={"Xác nhận xóa job"}
+                                description={"Bạn có chắc chắn muốn xóa job này ?"}
+                                onConfirm={() => handleDeleteJob(entity.id)}
+                                okText="Xác nhận"
+                                cancelText="Hủy"
+                            >
+                                <span style={{ cursor: "pointer", margin: "0 10px" }}>
+                                    <DeleteOutlined
+                                        style={{
+                                            fontSize: 20,
+                                            color: '#ff4d4f',
+                                        }}
+                                    />
+                                </span>
+                            </Popconfirm>
+                        </Access>
+                    )}
                 </Space >
             ),
 
