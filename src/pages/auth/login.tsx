@@ -39,8 +39,7 @@ const LoginPage = () => {
         } else {
             notification.error({
                 message: "Có lỗi xảy ra",
-                description:
-                    res.message && Array.isArray(res.message) ? res.message[0] : res.message,
+                description: 'Thông tin đăng nhập không hợp lệ',
                 duration: 5
             })
         }
@@ -67,7 +66,13 @@ const LoginPage = () => {
                                 labelCol={{ span: 24 }} //whole column
                                 label="Email"
                                 name="username"
-                                rules={[{ required: true, message: 'Email không được để trống!' }]}
+                                rules={[
+                                    { required: true, message: 'Email không được để trống!' },
+                                    {
+                                        pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                        message: 'Email phải đúng định dạng abc@gmail.com'
+                                    }
+                                ]}
                             >
                                 <Input />
                             </Form.Item>

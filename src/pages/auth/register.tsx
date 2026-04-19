@@ -61,7 +61,13 @@ const RegisterPage = () => {
                                 } //whole column
                                 label="Email"
                                 name="email"
-                                rules={[{ required: true, message: 'Email không được để trống!' }]}
+                                rules={[
+                                    { required: true, message: 'Email không được để trống!' },
+                                    {
+                                        pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                        message: 'Email phải đúng định dạng abc@gmail.com'
+                                    }
+                                ]}
                             >
                                 <Input type='email' />
                             </Form.Item>
