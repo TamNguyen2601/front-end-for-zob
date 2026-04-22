@@ -1,13 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
 import { useAppSelector } from '@/redux/hooks';
 import styles from '@/styles/client.module.scss';
 import PremiumModal from './modal/premium.modal';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const PremiumBadge = () => {
     const [openModal, setOpenModal] = useState(false);
+    const location = useLocation();
+    const navigate = useNavigate();
     const { isPremium, endAt, isLoading } = useAppSelector(state => state.premium);
     const isAuthenticated = useAppSelector(state => state.account.isAuthenticated);
+
+    useEffect(() => {
+        if (!isAuthenticated || isPremium) return;
+        const params = new URLSearchParams(location.search);
+        if (params.get('premium') !== '1') return;
+
+        setOpenModal(true);
+
+        params.delete('premium');
+        const nextSearch = params.toString();
+        navigate(
+            {
+                pathname: location.pathname,
+                search: nextSearch ? `?${nextSearch}` : '',
+            },
+            { replace: true }
+        );
+    }, [isAuthenticated, isPremium, location.pathname, location.search, navigate]);
 
     if (isLoading || !isAuthenticated) return null;
 

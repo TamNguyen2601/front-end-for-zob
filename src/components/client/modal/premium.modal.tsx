@@ -51,10 +51,10 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
             if (res?.data?.payUrl) {
                 const url = res.data.payUrl;
                 setPayUrl(url);
-                // Mở trang thanh toán VNPay trong tab mới
-                window.open(url, '_blank', 'noopener,noreferrer');
+                // Chuyển sang trang thanh toán VNPay trong CÙNG tab.
+                // Sau khi thanh toán xong, BE sẽ redirect về FE /payment/result?... theo spec.
+                window.location.assign(url);
                 setStep('waiting');
-                startPolling();
             } else {
                 message.error(res?.message || 'Có lỗi xảy ra khi tạo giao dịch');
             }

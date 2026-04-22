@@ -33,6 +33,7 @@ import ClientCompanyPage from './pages/company';
 import ClientCompanyDetailPage from './pages/company/detail';
 import JobTabs from './pages/admin/job/job.tabs';
 import VNPayReturnPage from './pages/payment/vnpay-return';
+import PaymentResultPage from './pages/payment/result';
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -51,8 +52,13 @@ const LayoutClient = () => {
     // BE VNPay return-url có thể trỏ về FE root (/) và VNPay sẽ append query params.
     // FE không parse/verify params, chỉ redirect về trang tối thiểu để refresh premium status.
     const hasVnPayQuery = /(^|&)vnp_/i.test(location.search.replace(/^\?/, ''));
+    const hasPaymentResultQuery = /(^|&)(success|code|txnRef)=/i.test(location.search.replace(/^\?/, ''));
     if (location.pathname === '/' && hasVnPayQuery) {
       navigate(`/payment/vnpay/return${location.search}`, { replace: true });
+      return;
+    }
+    if (location.pathname === '/' && hasPaymentResultQuery) {
+      navigate(`/payment/result${location.search}`, { replace: true });
     }
   }, [location.pathname, location.search, navigate]);
 
@@ -92,6 +98,7 @@ export default function App() {
       errorElement: <NotFound />,
       children: [
         { index: true, element: <HomePage /> },
+        { path: "payment/result", element: <PaymentResultPage /> },
         { path: "payment/vnpay/return", element: <VNPayReturnPage /> },
         { path: "job", element: <ClientJobPage /> },
         { path: "job/:id", element: <ClientJobDetailPage /> },
