@@ -634,6 +634,33 @@
     }
 }
 
+// ============ PAYMENT WAITING ============
+.payment-waiting {
+    text-align: center;
+    padding: 12px 0;
+
+    .waiting-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #222831;
+        margin-bottom: 10px;
+    }
+
+    .waiting-desc {
+        font-size: 13px;
+        color: #555;
+        line-height: 1.7;
+        margin-bottom: 6px;
+    }
+
+    .waiting-hint {
+        font-size: 12px;
+        color: #aaa;
+        margin-bottom: 16px;
+    }
+}
+
+
 .success-section {
     text-align: center;
     padding: 20px 0;

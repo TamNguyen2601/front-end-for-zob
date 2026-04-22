@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Spin, message } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
-import { QRCodeSVG } from 'qrcode.react';
+import { Spin, Button, message } from 'antd';
+import { LoadingOutlined, ExportOutlined } from '@ant-design/icons';
 import styles from '@/styles/client.module.scss';
 import { callPurchasePremium, callGetPremiumStatus } from '@/config/api';
 import { useAppDispatch } from '@/redux/hooks';
@@ -20,14 +19,13 @@ const PLANS = [
     { code: 'YEAR_1',     name: '1 Năm',   duration: '1 năm',   price: '250.000đ' },
 ];
 
-type Step = 'select' | 'qr' | 'success';
+type Step = 'select' | 'waiting' | 'success';
 
 const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
     const dispatch = useAppDispatch();
     const [step, setStep] = useState<Step>('select');
     const [selectedPlan, setSelectedPlan] = useState<string>('MONTH_1');
     const [payUrl, setPayUrl] = useState<string>('');
-    const [momoDeeplink, setMomoDeeplink] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successData, setSuccessData] = useState<{ endAt: string | null }>({ endAt: null });
     const [pollTimeout, setPollTimeout] = useState(false);
@@ -39,7 +37,6 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
             setStep('select');
             setSelectedPlan('MONTH_1');
             setPayUrl('');
-            setMomoDeeplink('');
             setPollTimeout(false);
         }
         return () => {
@@ -52,12 +49,14 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
         try {
             const res = await callPurchasePremium(selectedPlan);
             if (res?.data?.payUrl) {
-                setPayUrl(res.data.payUrl);
-                setMomoDeeplink(res.data.momoDeeplink ?? '');
-                setStep('qr');
+                const url = res.data.payUrl;
+                setPayUrl(url);
+                // Mở trang MoMo trong tab mới
+                window.open(url, '_blank', 'noopener,noreferrer');
+                setStep('waiting');
                 startPolling();
             } else {
-                message.error(res?.message || 'Có lỗi xảy ra khi tạo QR');
+                message.error(res?.message || 'Có lỗi xảy ra khi tạo giao dịch');
             }
         } catch (err) {
             message.error('Không thể kết nối máy chủ');
@@ -68,14 +67,13 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
 
     const startPolling = () => {
         let attempts = 0;
-        const MAX = 100; // 5 phút
+        const MAX = 100; // 5 phút (100 × 3s)
         timerRef.current = setInterval(async () => {
             attempts++;
             try {
                 const res = await callGetPremiumStatus();
                 if (res?.data?.isPremium) {
                     clearInterval(timerRef.current!);
-                    // Cập nhật Redux
                     dispatch(setPremiumStatus({
                         isPremium: true,
                         startAt: res.data.startAt,
@@ -108,13 +106,13 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
                 {/* Header */}
                 <div className={styles['modal-header']}>
                     <h3>
-                        {step === 'select' && '⭐ Nâng cấp Premium'}
-                        {step === 'qr' && '📱 Thanh toán MoMo'}
+                        {step === 'select'  && '⭐ Nâng cấp Premium'}
+                        {step === 'waiting' && '⏳ Đang chờ thanh toán'}
                         {step === 'success' && '🎉 Kích hoạt thành công!'}
                     </h3>
                     <p>
-                        {step === 'select' && 'Chọn gói phù hợp với nhu cầu của bạn'}
-                        {step === 'qr' && 'Quét mã QR bằng ứng dụng MoMo để thanh toán'}
+                        {step === 'select'  && 'Chọn gói phù hợp với nhu cầu của bạn'}
+                        {step === 'waiting' && 'Hoàn tất thanh toán trong tab MoMo vừa mở'}
                         {step === 'success' && 'Tài khoản của bạn đã được nâng cấp'}
                     </p>
                 </div>
@@ -123,60 +121,60 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
                 <div className={styles['modal-body']}>
                     {/* STEP 1: Chọn gói */}
                     {step === 'select' && (
-                        <>
-                            <div className={styles['plan-grid']}>
-                                {PLANS.map((plan) => (
-                                    <div
-                                        key={plan.code}
-                                        data-plan={plan.code}
-                                        className={`${styles['plan-card']} ${selectedPlan === plan.code ? styles['selected'] : ''}`}
-                                        onClick={() => setSelectedPlan(plan.code)}
-                                    >
-                                        <div className={styles['plan-badge-best']}>Tốt nhất</div>
-                                        <div className={styles['plan-name']}>{plan.name}</div>
-                                        <div className={styles['plan-duration']}>{plan.duration}</div>
-                                        <div className={styles['plan-price']}>{plan.price}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </>
+                        <div className={styles['plan-grid']}>
+                            {PLANS.map((plan) => (
+                                <div
+                                    key={plan.code}
+                                    data-plan={plan.code}
+                                    className={`${styles['plan-card']} ${selectedPlan === plan.code ? styles['selected'] : ''}`}
+                                    onClick={() => setSelectedPlan(plan.code)}
+                                >
+                                    <div className={styles['plan-badge-best']}>Tốt nhất</div>
+                                    <div className={styles['plan-name']}>{plan.name}</div>
+                                    <div className={styles['plan-duration']}>{plan.duration}</div>
+                                    <div className={styles['plan-price']}>{plan.price}</div>
+                                </div>
+                            ))}
+                        </div>
                     )}
 
-                    {/* STEP 2: QR MoMo */}
-                    {step === 'qr' && (
-                        <div className={styles['qr-section']}>
-                            <QRCodeSVG
-                                value={payUrl}
-                                size={220}
-                                level="M"
-                                includeMargin={true}
-                                style={{ borderRadius: 12, border: '3px solid #f0f0f0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                            />
-                            <p className={styles['qr-instruction']}>
-                                Dùng camera điện thoại hoặc app <strong>MoMo</strong> quét mã QR → Xác nhận thanh toán
-                            </p>
-                            {momoDeeplink && (
-                                <div style={{ marginBottom: 12 }}>
-                                    <a
-                                        href={momoDeeplink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{ color: '#ae2070', fontWeight: 600, fontSize: 13 }}
-                                    >
-                                        📱 Mở app MoMo để thanh toán
-                                    </a>
-                                </div>
-                            )}
+                    {/* STEP 2: Chờ thanh toán (thay QR) */}
+                    {step === 'waiting' && (
+                        <div className={styles['payment-waiting']}>
                             {pollTimeout ? (
-                                <div style={{ color: '#ff4d4f', fontSize: 13 }}>
-                                    ⚠️ Chưa xác nhận được thanh toán. Vui lòng kiểm tra lại MoMo hoặc thử lại.
-                                </div>
+                                <>
+                                    <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+                                    <div className={styles['waiting-title']} style={{ color: '#ff4d4f' }}>
+                                        Chưa xác nhận được thanh toán
+                                    </div>
+                                    <p className={styles['waiting-desc']}>
+                                        Vui lòng kiểm tra lại lịch sử giao dịch trong app MoMo hoặc thử lại.
+                                    </p>
+                                </>
                             ) : (
-                                <div className={styles['qr-spinner']}>
-                                    <Spin indicator={<LoadingOutlined spin />} />
-                                    <span>Đang chờ xác nhận thanh toán...</span>
-                                </div>
+                                <>
+                                    <Spin
+                                        indicator={<LoadingOutlined style={{ fontSize: 40, color: '#667eea' }} spin />}
+                                        style={{ marginBottom: 16 }}
+                                    />
+                                    <div className={styles['waiting-title']}>Đang chờ xác nhận thanh toán...</div>
+                                    <p className={styles['waiting-desc']}>
+                                        Trang thanh toán MoMo đã được mở trong tab mới.<br />
+                                        Vui lòng hoàn tất thanh toán tại đó.
+                                    </p>
+                                    <p className={styles['waiting-hint']}>
+                                        Trang này sẽ tự động cập nhật sau khi thanh toán thành công.
+                                    </p>
+                                </>
                             )}
+                            <Button
+                                id="btn-reopen-momo"
+                                icon={<ExportOutlined />}
+                                onClick={() => window.open(payUrl, '_blank', 'noopener,noreferrer')}
+                                style={{ marginTop: 8 }}
+                            >
+                                Mở lại trang thanh toán MoMo
+                            </Button>
                         </div>
                     )}
 
@@ -205,11 +203,11 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
                                 onClick={handlePurchase}
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? <Spin size="small" /> : 'Tiếp tục →'}
+                                {isSubmitting ? <Spin size="small" /> : 'Thanh toán →'}
                             </button>
                         </>
                     )}
-                    {step === 'qr' && (
+                    {step === 'waiting' && (
                         <button className={styles['btn-ghost']} onClick={handleClose}>Đóng</button>
                     )}
                     {step === 'success' && (
