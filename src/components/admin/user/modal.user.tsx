@@ -56,12 +56,13 @@ const ModalUser = (props: IProps) => {
 
     const submitUser = async (valuesForm: any) => {
         const { name, email, password, address, age, gender, role, company } = valuesForm;
+        const emailSubmit = dataInit?.id ? dataInit.email : email;
         if (dataInit?.id) {
             //update
             const user = {
                 id: dataInit.id,
                 name,
-                email,
+                email: emailSubmit,
                 password,
                 age,
                 gender,
@@ -88,7 +89,7 @@ const ModalUser = (props: IProps) => {
             //create
             const user = {
                 name,
-                email,
+                email: emailSubmit,
                 password,
                 age,
                 gender,
@@ -179,6 +180,7 @@ const ModalUser = (props: IProps) => {
                 <Row gutter={16}>
                     <Col lg={12} md={12} sm={24} xs={24}>
                         <ProFormText
+                            disabled={!!dataInit?.id}
                             label="Email"
                             name="email"
                             rules={[
