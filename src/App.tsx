@@ -4,6 +4,7 @@ import {
   Outlet,
   RouterProvider,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import NotFound from 'components/share/not.found';
@@ -31,10 +32,12 @@ import ClientJobDetailPage from './pages/job/detail';
 import ClientCompanyPage from './pages/company';
 import ClientCompanyDetailPage from './pages/company/detail';
 import JobTabs from './pages/admin/job/job.tabs';
+import VNPayReturnPage from './pages/payment/vnpay-return';
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,6 +46,15 @@ const LayoutClient = () => {
     }
 
   }, [location]);
+
+  useEffect(() => {
+    // BE VNPay return-url có thể trỏ về FE root (/) và VNPay sẽ append query params.
+    // FE không parse/verify params, chỉ redirect về trang tối thiểu để refresh premium status.
+    const hasVnPayQuery = /(^|&)vnp_/i.test(location.search.replace(/^\?/, ''));
+    if (location.pathname === '/' && hasVnPayQuery) {
+      navigate(`/payment/vnpay/return${location.search}`, { replace: true });
+    }
+  }, [location.pathname, location.search, navigate]);
 
   return (
     <div className='layout-app' ref={rootRef}>
@@ -80,6 +92,7 @@ export default function App() {
       errorElement: <NotFound />,
       children: [
         { index: true, element: <HomePage /> },
+        { path: "payment/vnpay/return", element: <VNPayReturnPage /> },
         { path: "job", element: <ClientJobPage /> },
         { path: "job/:id", element: <ClientJobDetailPage /> },
         { path: "company", element: <ClientCompanyPage /> },

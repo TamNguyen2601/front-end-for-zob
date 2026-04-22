@@ -191,8 +191,7 @@ export interface IPremiumStatus {
 export interface IPremiumPurchase {
     transactionId: number;
     providerOrderId: string;
-    payUrl: string;        // dùng để tạo QR image ở FE
-    momoDeeplink: string;  // deep link mở thẳng app MoMo trên mobile
+    payUrl: string;        // URL thanh toán (VNPay)
     createdAt: string;
 }
 

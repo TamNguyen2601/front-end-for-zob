@@ -14,9 +14,9 @@ interface PremiumModalProps {
 
 const PLANS = [
     { code: 'DEMO_1_MIN', name: 'Demo', duration: '1 phút', price: '3.000đ' },
-    { code: 'MONTH_1',    name: '1 Tháng', duration: '1 tháng', price: '50.000đ' },
-    { code: 'MONTH_3',    name: '3 Tháng', duration: '3 tháng', price: '100.000đ' },
-    { code: 'YEAR_1',     name: '1 Năm',   duration: '1 năm',   price: '250.000đ' },
+    { code: 'MONTH_1', name: '1 Tháng', duration: '1 tháng', price: '50.000đ' },
+    { code: 'MONTH_3', name: '3 Tháng', duration: '3 tháng', price: '100.000đ' },
+    { code: 'YEAR_1', name: '1 Năm', duration: '1 năm', price: '250.000đ' },
 ];
 
 type Step = 'select' | 'waiting' | 'success';
@@ -51,7 +51,7 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
             if (res?.data?.payUrl) {
                 const url = res.data.payUrl;
                 setPayUrl(url);
-                // Mở trang MoMo trong tab mới
+                // Mở trang thanh toán VNPay trong tab mới
                 window.open(url, '_blank', 'noopener,noreferrer');
                 setStep('waiting');
                 startPolling();
@@ -106,13 +106,13 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
                 {/* Header */}
                 <div className={styles['modal-header']}>
                     <h3>
-                        {step === 'select'  && '⭐ Nâng cấp Premium'}
+                        {step === 'select' && '⭐ Nâng cấp Premium'}
                         {step === 'waiting' && '⏳ Đang chờ thanh toán'}
                         {step === 'success' && '🎉 Kích hoạt thành công!'}
                     </h3>
                     <p>
-                        {step === 'select'  && 'Chọn gói phù hợp với nhu cầu của bạn'}
-                        {step === 'waiting' && 'Hoàn tất thanh toán trong tab MoMo vừa mở'}
+                        {step === 'select' && 'Chọn gói phù hợp với nhu cầu của bạn'}
+                        {step === 'waiting' && 'Hoàn tất thanh toán trong tab VNPay vừa mở'}
                         {step === 'success' && 'Tài khoản của bạn đã được nâng cấp'}
                     </p>
                 </div>
@@ -148,7 +148,7 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
                                         Chưa xác nhận được thanh toán
                                     </div>
                                     <p className={styles['waiting-desc']}>
-                                        Vui lòng kiểm tra lại lịch sử giao dịch trong app MoMo hoặc thử lại.
+                                        Vui lòng kiểm tra lại giao dịch hoặc thử lại sau.
                                     </p>
                                 </>
                             ) : (
@@ -159,7 +159,7 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
                                     />
                                     <div className={styles['waiting-title']}>Đang chờ xác nhận thanh toán...</div>
                                     <p className={styles['waiting-desc']}>
-                                        Trang thanh toán MoMo đã được mở trong tab mới.<br />
+                                        Trang thanh toán VNPay đã được mở trong tab mới.<br />
                                         Vui lòng hoàn tất thanh toán tại đó.
                                     </p>
                                     <p className={styles['waiting-hint']}>
@@ -168,12 +168,12 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
                                 </>
                             )}
                             <Button
-                                id="btn-reopen-momo"
+                                id="btn-reopen-vnpay"
                                 icon={<ExportOutlined />}
                                 onClick={() => window.open(payUrl, '_blank', 'noopener,noreferrer')}
                                 style={{ marginTop: 8 }}
                             >
-                                Mở lại trang thanh toán MoMo
+                                Mở lại trang thanh toán VNPay
                             </Button>
                         </div>
                     )}
