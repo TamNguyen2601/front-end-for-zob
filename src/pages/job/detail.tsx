@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import { IJob } from "@/types/backend";
-import { callFetchJobById } from "@/config/api";
+import { IJob, IResumeStats } from "@/types/backend";
+import { callFetchJobById, callGetResumeStats } from "@/config/api";
 import styles from 'styles/client.module.scss';
 import parse from 'html-react-parser';
 import { Col, Divider, Row, Skeleton, Tag } from "antd";
@@ -10,12 +10,16 @@ import { getLocationName } from "@/config/utils";
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import ApplyModal from "@/components/client/modal/apply.modal";
+import ResumeStatsBlock from "@/components/client/resume-stats-block";
 dayjs.extend(relativeTime)
 
 
 const ClientJobDetailPage = (props: any) => {
     const [jobDetail, setJobDetail] = useState<IJob | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [resumeStats, setResumeStats] = useState<IResumeStats | null>(null);
+    const [statsForbidden, setStatsForbidden] = useState<boolean>(false);
+    const [statsLoading, setStatsLoading] = useState<boolean>(false);
 
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -26,12 +30,24 @@ const ClientJobDetailPage = (props: any) => {
     useEffect(() => {
         const init = async () => {
             if (id) {
-                setIsLoading(true)
-                const res = await callFetchJobById(id);
-                if (res?.data) {
-                    setJobDetail(res.data)
-                }
-                setIsLoading(false)
+                setIsLoading(true);
+                setStatsLoading(true);
+                setResumeStats(null);
+                setStatsForbidden(false);
+
+                // Gọi song song job detail và resume stats
+                const [jobRes] = await Promise.all([
+                    callFetchJobById(id),
+                    callGetResumeStats(id)
+                        .then((res: any) => { if (res?.data) setResumeStats(res.data as IResumeStats); })
+                        .catch((err: any) => {
+                            if (err?.response?.status === 403) setStatsForbidden(true);
+                        })
+                        .finally(() => setStatsLoading(false)),
+                ]);
+
+                if (jobRes?.data) setJobDetail(jobRes.data);
+                setIsLoading(false);
             }
         }
         init();
@@ -95,6 +111,11 @@ const ClientJobDetailPage = (props: any) => {
                                         {jobDetail.company?.name}
                                     </div>
                                 </div>
+                                <ResumeStatsBlock
+                                    stats={resumeStats}
+                                    isForbidden={statsForbidden}
+                                    isLoading={statsLoading}
+                                />
                             </Col>
                         </>
                     }

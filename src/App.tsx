@@ -23,6 +23,7 @@ import ResumePage from './pages/admin/resume';
 import RolePage from './pages/admin/role';
 import UserPage from './pages/admin/user';
 import { fetchAccount } from './redux/slice/accountSlide';
+import { fetchPremiumStatus } from './redux/slice/premiumSlice';
 import LayoutApp from './components/share/layout.app';
 import ViewUpsertJob from './components/admin/job/upsert.job';
 import ClientJobPage from './pages/job';
@@ -65,7 +66,11 @@ export default function App() {
       || window.location.pathname === '/register'
     )
       return;
-    dispatch(fetchAccount())
+    dispatch(fetchAccount()).then((res: any) => {
+      if (res?.payload?.user) {
+        dispatch(fetchPremiumStatus());
+      }
+    });
   }, [])
 
   const router = createBrowserRouter([

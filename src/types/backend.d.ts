@@ -181,3 +181,25 @@ export interface ISubscribers {
     createdAt?: string;
     updatedAt?: string;
 }
+
+export interface IPremiumStatus {
+    isPremium: boolean;
+    startAt: string | null;
+    endAt: string | null;
+}
+
+export interface IPremiumPurchase {
+    transactionId: number;
+    providerOrderId: string;
+    payUrl: string;        // dùng để tạo QR image ở FE
+    momoDeeplink: string;  // deep link mở thẳng app MoMo trên mobile
+    createdAt: string;
+}
+
+export interface IResumeStats {
+    total: number;
+    pending: number;
+    reviewing: number;
+    approved: number;
+    rejected: number;
+}

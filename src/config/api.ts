@@ -1,4 +1,4 @@
-import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers } from '@/types/backend';
+import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers, IPremiumStatus, IPremiumPurchase, IResumeStats } from '@/types/backend';
 import axios from 'config/axios-customize';
 
 /**
@@ -257,3 +257,18 @@ export const callFetchSubscriberById = (id: string) => {
     return axios.get<IBackendRes<ISubscribers>>(`/api/v1/subscribers/${id}`);
 }
 
+/**
+ * 
+Module Premium
+ */
+export const callGetPremiumStatus = () => {
+    return axios.get<IBackendRes<IPremiumStatus>>('/api/v1/premium/me');
+}
+
+export const callPurchasePremium = (planCode: string) => {
+    return axios.post<IBackendRes<IPremiumPurchase>>('/api/v1/premium/purchase', { planCode });
+}
+
+export const callGetResumeStats = (jobId: string | number) => {
+    return axios.get<IBackendRes<IResumeStats>>(`/api/v1/jobs/${jobId}/resumes/stats`);
+}

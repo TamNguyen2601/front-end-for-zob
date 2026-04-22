@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { callLogout } from '@/config/api';
 import { setLogoutAction } from '@/redux/slice/accountSlide';
 import ManageAccount from './modal/manage.account';
+import PremiumBadge from './premium-badge';
 
 const Header = (props: any) => {
     const navigate = useNavigate();
@@ -119,6 +120,7 @@ const Header = (props: any) => {
                                     />
                                 </ConfigProvider>
                                 <div className={styles['extra']}>
+                                    <PremiumBadge />
                                     {isAuthenticated === false ?
                                         <Link to={'/login'}>Đăng Nhập</Link>
                                         :

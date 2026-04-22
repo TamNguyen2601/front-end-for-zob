@@ -1,10 +1,10 @@
 import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { IJob } from "@/types/backend";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { BarChartOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
-import { useRef } from 'react';
+import { Button, Popconfirm, Space, Tag, Tooltip, message, notification } from "antd";
+import { useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import { callDeleteJob } from "@/config/api";
 import queryString from 'query-string';
@@ -13,6 +13,7 @@ import { fetchJob, removeJobById } from "@/redux/slice/jobSlide";
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
 import { sfIn } from "spring-filter-query-builder";
+import ResumeStatsModal from "@/components/admin/job/resume-stats.modal";
 
 const JobPage = () => {
     const tableRef = useRef<ActionType>();
@@ -24,6 +25,8 @@ const JobPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const isHrRole = (userRoleName ?? '').toUpperCase().includes('HR');
+
+    const [statsModalJob, setStatsModalJob] = useState<{ id: string; name: string } | null>(null);
 
     const handleDeleteJob = async (id: string | undefined) => {
         if (id) {
@@ -129,6 +132,21 @@ const JobPage = () => {
                 )
             },
             hideInSearch: true,
+        },
+        {
+            title: 'Thống kê CV',
+            hideInSearch: true,
+            width: 100,
+            align: 'center' as const,
+            render: (_value: any, entity: IJob) => (
+                <Tooltip title="Xem thống kê ứng tuyển">
+                    <BarChartOutlined
+                        id={`btn-stats-${entity.id}`}
+                        style={{ fontSize: 18, color: '#667eea', cursor: 'pointer' }}
+                        onClick={() => setStatsModalJob({ id: entity.id!, name: entity.name })}
+                    />
+                </Tooltip>
+            ),
         },
         {
 
@@ -298,6 +316,13 @@ const JobPage = () => {
                     }}
                 />
             </Access>
+
+            <ResumeStatsModal
+                open={!!statsModalJob}
+                jobId={statsModalJob?.id}
+                jobName={statsModalJob?.name}
+                onClose={() => setStatsModalJob(null)}
+            />
         </div >
     )
 }
