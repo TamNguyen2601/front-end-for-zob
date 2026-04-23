@@ -580,6 +580,44 @@ const ChangePassword = (props: any) => {
     )
 }
 
+const PremiumInfo = () => {
+    const premium = useAppSelector(state => state.premium);
+
+    const startAtText = premium.startAt
+        ? dayjs(premium.startAt).format('DD/MM/YYYY HH:mm:ss')
+        : '-';
+    const endAtText = premium.endAt
+        ? dayjs(premium.endAt).format('DD/MM/YYYY HH:mm:ss')
+        : (premium.isPremium ? 'Vĩnh viễn (Admin)' : '-');
+
+    return (
+        <div style={{ padding: 8 }}>
+            {premium.isLoading ? (
+                <div>Đang tải trạng thái Premium…</div>
+            ) : !premium.isPremium ? (
+                <>
+                    <Tag color="default">Chưa kích hoạt</Tag>
+                    <div style={{ marginTop: 8 }}>
+                        Bạn chưa kích hoạt Premium.
+                    </div>
+                </>
+            ) : (
+                <>
+                    <Tag color="gold">Premium</Tag>
+                    <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
+                        <Col span={24}>
+                            <b>Ngày bắt đầu:</b> {startAtText}
+                        </Col>
+                        <Col span={24}>
+                            <b>Ngày kết thúc:</b> {endAtText}
+                        </Col>
+                    </Row>
+                </>
+            )}
+        </div>
+    );
+}
+
 const ManageAccount = (props: IProps) => {
     const { open, onClose } = props;
 
@@ -594,6 +632,11 @@ const ManageAccount = (props: IProps) => {
             children: <UserResume />,
         },
         {
+            key: 'user-premium',
+            label: `Premium`,
+            children: <PremiumInfo />,
+        },
+        {
             key: 'user-update-info',
             label: `Cập nhật thông tin`,
             children: <UserUpdateInfo open={open} />,
@@ -604,8 +647,6 @@ const ManageAccount = (props: IProps) => {
             children: <ChangePassword />,
         },
     ];
-
-
     return (
         <>
             <Modal

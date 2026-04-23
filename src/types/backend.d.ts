@@ -183,7 +183,9 @@ export interface ISubscribers {
 }
 
 export interface IPremiumStatus {
-    isPremium: boolean;
+    // BE có thể trả `premium` (khuyến nghị) hoặc `isPremium` (tương thích cũ)
+    premium?: boolean;
+    isPremium?: boolean;
     startAt: string | null;
     endAt: string | null;
 }

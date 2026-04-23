@@ -66,7 +66,8 @@ const PaymentResultPage = () => {
                         dispatch(setPremiumStatus(data));
                     }
 
-                    if (data?.isPremium) {
+                    const isPremium = (data as any)?.premium ?? (data as any)?.isPremium;
+                    if (isPremium) {
                         setPremiumSync({ type: 'active' });
                         return;
                     }

@@ -13,7 +13,7 @@ interface PremiumModalProps {
 }
 
 const PLANS = [
-    { code: 'DEMO_1_MIN', name: 'Demo', duration: '1 phút', price: '3.000đ' },
+    { code: 'DEMO_1_MIN', name: 'Demo', duration: '1 phút', price: '10.000đ' },
     { code: 'MONTH_1', name: '1 Tháng', duration: '1 tháng', price: '50.000đ' },
     { code: 'MONTH_3', name: '3 Tháng', duration: '3 tháng', price: '100.000đ' },
     { code: 'YEAR_1', name: '1 Năm', duration: '1 năm', price: '250.000đ' },
@@ -72,14 +72,16 @@ const PremiumModal = ({ open, onClose }: PremiumModalProps) => {
             attempts++;
             try {
                 const res = await callGetPremiumStatus();
-                if (res?.data?.isPremium) {
+                const payload = res?.data;
+                const isPremium = (payload as any)?.premium ?? (payload as any)?.isPremium;
+                if (isPremium) {
                     clearInterval(timerRef.current!);
                     dispatch(setPremiumStatus({
-                        isPremium: true,
-                        startAt: res.data.startAt,
-                        endAt: res.data.endAt,
+                        premium: true,
+                        startAt: payload?.startAt ?? null,
+                        endAt: payload?.endAt ?? null,
                     }));
-                    setSuccessData({ endAt: res.data.endAt });
+                    setSuccessData({ endAt: payload?.endAt ?? null });
                     setStep('success');
                 }
             } catch { /* bỏ qua lỗi polling */ }

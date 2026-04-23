@@ -2,6 +2,10 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { callGetPremiumStatus } from '@/config/api';
 import { IPremiumStatus } from '@/types/backend';
 
+const getDerivedIsPremium = (payload: IPremiumStatus | any): boolean => {
+    return payload?.premium ?? payload?.isPremium ?? false;
+};
+
 export const fetchPremiumStatus = createAsyncThunk(
     'premium/fetchPremiumStatus',
     async (_, { rejectWithValue }) => {
@@ -33,9 +37,9 @@ export const premiumSlice = createSlice({
     initialState,
     reducers: {
         setPremiumStatus: (state, action: PayloadAction<IPremiumStatus>) => {
-            state.isPremium = action.payload.isPremium;
-            state.startAt = action.payload.startAt;
-            state.endAt = action.payload.endAt;
+            state.isPremium = getDerivedIsPremium(action.payload);
+            state.startAt = action.payload.startAt ?? null;
+            state.endAt = action.payload.endAt ?? null;
         },
         clearPremiumStatus: (state) => {
             state.isPremium = false;
@@ -50,14 +54,14 @@ export const premiumSlice = createSlice({
         builder.addCase(fetchPremiumStatus.fulfilled, (state, action) => {
             state.isLoading = false;
             if (action.payload) {
-                state.isPremium = action.payload.isPremium;
-                state.startAt = action.payload.startAt;
-                state.endAt = action.payload.endAt;
+                state.isPremium = getDerivedIsPremium(action.payload);
+                state.startAt = action.payload.startAt ?? null;
+                state.endAt = action.payload.endAt ?? null;
             }
         });
         builder.addCase(fetchPremiumStatus.rejected, (state) => {
             state.isLoading = false;
-            state.isPremium = false;
+            // Giữ trạng thái hiện tại nếu lỗi mạng/BE, tránh UI tụt về “chưa Premium”
         });
     },
 });

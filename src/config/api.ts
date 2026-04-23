@@ -262,7 +262,16 @@ export const callFetchSubscriberById = (id: string) => {
 Module Premium
  */
 export const callGetPremiumStatus = () => {
-    return axios.get<IBackendRes<IPremiumStatus>>('/api/v1/premium/me');
+    const primaryUrl = '/api/v1/premium/me';
+    const fallbackUrl = '/api/v1/prenium/me';
+
+    return (async () => {
+        const res = await axios.get<IBackendRes<IPremiumStatus>>(primaryUrl);
+        if (res && +res.statusCode === 404) {
+            return axios.get<IBackendRes<IPremiumStatus>>(fallbackUrl);
+        }
+        return res;
+    })();
 }
 
 export const callPurchasePremium = (planCode: string) => {

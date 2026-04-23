@@ -65,32 +65,25 @@ const PremiumBadge = () => {
         );
     }
 
-    if (isExpiring) {
-        return (
-            <>
-                <Tooltip title={`Sắp hết hạn! Còn ${daysLeft} ngày`}>
-                    <button
-                        id="btn-premium-expiring"
-                        className={`${styles['premium-badge']} ${styles['badge-expiring']}`}
-                        onClick={() => setOpenModal(true)}
-                    >
-                        ⭐ Premium · ⚠️ {daysLeft} ngày
-                    </button>
-                </Tooltip>
-                <PremiumModal open={openModal} onClose={() => setOpenModal(false)} />
-            </>
-        );
-    }
+    // Đã Premium (không phải Admin) => hiển thị nút Gia hạn
+    const btnClass = isExpiring ? styles['badge-expiring'] : styles['badge-premium'];
+    const tooltipTitle = isExpiring
+        ? `Sắp hết hạn! Còn ${daysLeft} ngày`
+        : (endAt ? `Hết hạn: ${new Date(endAt).toLocaleDateString('vi-VN')}` : '');
 
     return (
-        <Tooltip title={endAt ? `Hết hạn: ${new Date(endAt).toLocaleDateString('vi-VN')}` : ''}>
-            <span
-                id="badge-premium-active"
-                className={`${styles['premium-badge']} ${styles['badge-premium']}`}
-            >
-                ⭐ Premium · {daysLeft !== null ? `Còn ${daysLeft} ngày` : ''}
-            </span>
-        </Tooltip>
+        <>
+            <Tooltip title={tooltipTitle}>
+                <button
+                    id={isExpiring ? 'btn-premium-renew-expiring' : 'btn-premium-renew'}
+                    className={`${styles['premium-badge']} ${btnClass}`}
+                    onClick={() => setOpenModal(true)}
+                >
+                    ⭐ Gia hạn{daysLeft !== null ? ` · Còn ${daysLeft} ngày` : ''}
+                </button>
+            </Tooltip>
+            <PremiumModal open={openModal} onClose={() => setOpenModal(false)} />
+        </>
     );
 };
 
