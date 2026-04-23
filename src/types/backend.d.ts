@@ -204,3 +204,14 @@ export interface IResumeStats {
     approved: number;
     rejected: number;
 }
+
+export interface IChatHistoryItem {
+    role: 'user' | 'model';
+    content: string;
+}
+
+export interface IChatResponse {
+    reply: string;
+    model: string;
+    timestamp: string;
+}

@@ -1,4 +1,4 @@
-import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers, IPremiumStatus, IPremiumPurchase, IResumeStats } from '@/types/backend';
+import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers, IPremiumStatus, IPremiumPurchase, IResumeStats, IChatHistoryItem, IChatResponse } from '@/types/backend';
 import axios from 'config/axios-customize';
 
 /**
@@ -72,6 +72,10 @@ export const callFetchCompany = (query: string) => {
 
 export const callFetchCompanyById = (id: string) => {
     return axios.get<IBackendRes<ICompany>>(`/api/v1/companies/${id}`);
+}
+
+export const callFetchJobsByCompanyId = (companyId: string, query: string) => {
+    return axios.get<IBackendRes<IModelPaginate<IJob>>>(`/api/v1/companies/${companyId}/jobs?${query}`);
 }
 
 /**
@@ -280,4 +284,12 @@ export const callPurchasePremium = (planCode: string) => {
 
 export const callGetResumeStats = (jobId: string | number) => {
     return axios.get<IBackendRes<IResumeStats>>(`/api/v1/jobs/${jobId}/resumes/stats`);
+}
+
+/**
+ * 
+ * Module Chat (Gemini AI)
+ */
+export const callChatGemini = (message: string, history: IChatHistoryItem[] = []) => {
+    return axios.post<IBackendRes<IChatResponse>>('/api/v1/chat', { message, history });
 }

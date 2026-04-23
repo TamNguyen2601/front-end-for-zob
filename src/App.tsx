@@ -34,6 +34,7 @@ import ClientCompanyDetailPage from './pages/company/detail';
 import JobTabs from './pages/admin/job/job.tabs';
 import VNPayReturnPage from './pages/payment/vnpay-return';
 import PaymentResultPage from './pages/payment/result';
+import ChatBox from './components/client/chat-box';
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -69,6 +70,7 @@ const LayoutClient = () => {
         <Outlet context={[searchTerm, setSearchTerm]} />
       </div>
       <Footer />
+      <ChatBox />
     </div>
   )
 }
