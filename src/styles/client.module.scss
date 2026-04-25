@@ -99,11 +99,14 @@
         width: 100%;
 
         .extra {
+            display: flex;
+            align-items: center;
+            gap: 16px;
 
             a,
-            span {
+            span:not(.premium-badge),
+            .ant-space {
                 cursor: pointer;
-                display: block;
                 color: #a7a7a7;
                 text-decoration: none;
 
@@ -345,8 +348,8 @@
     }
 
     &.badge-admin {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: #003d5c;
+        background: linear-gradient(135deg, #ff9a44 0%, #fc6c2e 100%);
+        color: #fff;
     }
 }
 
